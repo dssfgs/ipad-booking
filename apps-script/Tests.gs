@@ -1027,7 +1027,7 @@ function testRouterAndEnvelope() {
     var out5 = handleRequest_('POST', { postData: { contents: JSON.stringify({ action: 'getWeekData', payload: {} }) } });
     assertEqual_(JSON.parse(out5.getContent()).error.code, ERROR_CODES.AUTH_REQUIRED, '沒有 idToken');
   });
-  test_('health：GET 無需 token，回傳版本與 requestId', function () {
+  test_('health：GET 無需 token，回傳版本、requestId 與 setup 狀態；GET 無 action 亦視為 health', function () {
     var savedProps = PROP_OVERRIDE_;
     PROP_OVERRIDE_ = testProps_();
     try {
@@ -1037,8 +1037,48 @@ function testRouterAndEnvelope() {
       assertEqual_(body.data.version, VERSION);
       assert_(body.requestId && body.requestId.length > 0);
       assertEqual_(out.mimeType, ContentService.MimeType.JSON);
+      assert_(body.data.setup && Array.isArray(body.data.setup.hints), 'setup 狀態存在');
+      var bare = JSON.parse(handleRequest_('GET', { parameter: {} }).getContent());
+      assertEqual_([bare.ok, bare.data.version], [true, VERSION], 'GET 無 action 視為 health');
+      var noSheet = {};
+      noSheet[PROP_KEYS.SPREADSHEET_ID] = '';
+      PROP_OVERRIDE_ = testProps_(noSheet);
+      var savedOverride = SPREADSHEET_ID_OVERRIDE_;
+      SPREADSHEET_ID_OVERRIDE_ = null;
+      try {
+        var incomplete = JSON.parse(handleRequest_('GET', { parameter: { action: 'health' } }).getContent());
+        assertEqual_([incomplete.ok, incomplete.data.status, incomplete.data.setup.spreadsheetConfigured], [true, 'setup_incomplete', false]);
+      } finally {
+        SPREADSHEET_ID_OVERRIDE_ = savedOverride;
+      }
     } finally {
       PROP_OVERRIDE_ = savedProps;
+    }
+  });
+  test_('migrateSystem_ 對全新空白試算表：建立 8 表、預填時段與部署者人員、schemaVersion=3', function () {
+    var savedProps = PROP_OVERRIDE_;
+    var savedOverride = SPREADSHEET_ID_OVERRIDE_;
+    var blankId = SpreadsheetApp.create('blank-test').getId();
+    try {
+      var props = {};
+      props[PROP_KEYS.SPREADSHEET_ID] = blankId;
+      props[PROP_KEYS.ADMIN_EMAIL_FALLBACK] = 'deployer@' + TEST_HD_;
+      PROP_OVERRIDE_ = testProps_(props);
+      SPREADSHEET_ID_OVERRIDE_ = blankId;
+      clearAllCaches_();
+      var r = migrateSystem_();
+      assertEqual_([r.createdSheets.length, r.seededSlots, r.seededStaff, r.toVersion], [8, true, true, 3]);
+      assertEqual_(readSheetFresh_(SHEET_NAMES.SLOTS).length - 1, DEFAULT_SLOTS.length, '預設時段筆數');
+      assertEqual_(readSheetFresh_(SHEET_NAMES.STAFF).length - 1, 2, '部署者為管理員與經手人');
+      var r2 = migrateSystem_();
+      assertEqual_([r2.createdSheets.length, r2.seededSlots, r2.seededStaff], [0, false, false], '重複執行不再寫入');
+      var health = healthAction_();
+      assertEqual_([health.status, health.setup.slotCount, health.setup.staffCount, health.setup.missingSheets.length], ['ok', DEFAULT_SLOTS.length, 2, 0]);
+    } finally {
+      try { DriveApp.getFileById(blankId).setTrashed(true); } catch (e) { /* ignore */ }
+      PROP_OVERRIDE_ = savedProps;
+      SPREADSHEET_ID_OVERRIDE_ = savedOverride;
+      clearAllCaches_();
     }
   });
   test_('角色權限：教師呼叫 approveApplication → FORBIDDEN_ROLE', function () {

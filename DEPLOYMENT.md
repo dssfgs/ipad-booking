@@ -99,8 +99,10 @@
 首次執行任何函式時 Google 會要求授權。若看到「Specified permissions are not sufficient」，代表 `appsscript.json` 未以本 repository 的版本取代（缺少 `userinfo.email` 等 scope）；請貼上最新 `appsscript.json` 後，於「部署 → 測試部署」或重新執行函式時重新授權。
 
 ### 4.3 驗證後端
-- 瀏覽器開啟 `<Web App URL>?action=health`，應看到 `{"ok":true,"data":{"status":"ok","schemaVersion":3,...}}`。
+- 瀏覽器直接開啟 `<Web App URL>`（或 `<Web App URL>?action=health`），應看到 `{"ok":true,"data":{"status":"ok","schemaVersion":3,"setup":{...}}}`。
+- `data.setup` 會回報設定完成度（不含任何個人資料）：`spreadsheetConfigured`、`oauthClientConfigured`、`allowedHdConfigured`、`missingSheets`、`slotCount`、`staffCount`，以及中文 `hints`。若 `status` 為 `setup_incomplete`，依 `hints` 逐項處理後重新整理即可。
 - 若 `data.configWarning` 有值，代表 `系統設定.獲准網域` 與 `ALLOWED_HD` 不一致，請修正。
+- 注意：Web App URL 只回傳 JSON，不會改動試算表；真正建立工作表的是在編輯器執行 `setupSystem()`。
 
 ---
 

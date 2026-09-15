@@ -133,6 +133,8 @@ function toErrorEnvelope_(err, requestId) {
 function dispatch_(method, e, requestId) {
   var req = parseRequest_(method, e);
   var action = req.action;
+  // 直接在瀏覽器開啟 Web App URL（GET 且無 action）時視為 health，方便部署後檢查。
+  if (method === 'GET' && !action) action = 'health';
   if (!Object.prototype.hasOwnProperty.call(ACTIONS_, action)) {
     throw new ApiError_(ERROR_CODES.UNKNOWN_ACTION, '不支援的操作：' + safeText_(action, 40));
   }
@@ -161,10 +163,12 @@ function dispatch_(method, e, requestId) {
   return def.handler(ctx, req.payload);
 }
 
-/** health（GET）：不含任何預約資料。 */
+/** health（GET）：不含任何預約資料或個人資料，只回報設定完成度以便部署檢查。 */
 function healthAction_() {
-  var data = { status: 'ok', schemaVersion: SCHEMA_VERSION, version: VERSION };
+  var data = { status: 'ok', schemaVersion: SCHEMA_VERSION, version: VERSION, setup: setupStatus_() };
+  if (data.setup.hints.length) data.status = 'setup_incomplete';
   try {
+    if (!data.setup.spreadsheetConfigured || data.setup.missingSheets.length) return data;
     var settings = getSettings_();
     data.schemaVersion = settings.schemaVersion;
     var allowedHd = getProp_(PROP_KEYS.ALLOWED_HD).toLowerCase();
@@ -176,6 +180,44 @@ function healthAction_() {
     console.error('health 讀取設定失敗: ' + err);
   }
   return data;
+}
+
+/**
+ * 部署完成度檢查（不含個人資料）：Script Properties 是否齊全、8 個工作表是否存在、時段／人員筆數，
+ * 以及對應的中文提示。
+ */
+function setupStatus_() {
+  var status = {
+    spreadsheetConfigured: !!getProp_(PROP_KEYS.SPREADSHEET_ID),
+    oauthClientConfigured: !!getProp_(PROP_KEYS.OAUTH_CLIENT_ID),
+    allowedHdConfigured: !!getProp_(PROP_KEYS.ALLOWED_HD),
+    missingSheets: [],
+    slotCount: 0,
+    staffCount: 0,
+    hints: []
+  };
+  if (!status.spreadsheetConfigured) status.hints.push('Script Property SPREADSHEET_ID 未設定。');
+  if (!status.oauthClientConfigured) status.hints.push('Script Property OAUTH_CLIENT_ID 未設定，登入會被拒。');
+  if (!status.allowedHdConfigured) status.hints.push('Script Property ALLOWED_HD 未設定。');
+  if (!status.spreadsheetConfigured) return status;
+  try {
+    var ss = getSpreadsheet_();
+    for (var i = 0; i < SHEET_ORDER_.length; i++) {
+      if (!ss.getSheetByName(SHEET_ORDER_[i])) status.missingSheets.push(SHEET_ORDER_[i]);
+    }
+    if (status.missingSheets.length) {
+      status.hints.push('試算表缺少工作表：' + status.missingSheets.join('、') + '，請在 Apps Script 編輯器執行 setupSystem()。');
+      return status;
+    }
+    status.slotCount = Math.max(0, readSheetFresh_(SHEET_NAMES.SLOTS).length - 1);
+    status.staffCount = Math.max(0, readSheetFresh_(SHEET_NAMES.STAFF).length - 1);
+    if (!status.slotCount) status.hints.push('「時段設定」沒有任何時段，週表會是空的；請執行 setupSystem() 或手動填入。');
+    if (!status.staffCount) status.hints.push('「人員設定」沒有任何管理員／經手人，將無人可審批；請填入電郵與角色。');
+  } catch (err) {
+    console.error('setupStatus_ 讀取試算表失敗: ' + err);
+    status.hints.push('無法開啟 SPREADSHEET_ID 所指的試算表，請確認 ID 正確且部署者有編輯權限。');
+  }
+  return status;
 }
 
 function whoamiAction_(ctx) {

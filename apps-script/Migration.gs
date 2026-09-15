@@ -84,6 +84,42 @@ function resolveDeployerEmail_() {
   }
 }
 
+/**
+ * 「時段設定」完全沒有資料列時（例如全新空白試算表）寫入預設 P01–P09 + AFTER；
+ * 已有任何時段則完全不動。回傳是否有寫入。
+ */
+function seedDefaultSlotsIfEmpty_() {
+  var rows = readSheetFresh_(SHEET_NAMES.SLOTS);
+  var hasData = false;
+  for (var i = 1; i < rows.length && !hasData; i++) {
+    for (var j = 0; j < rows[i].length; j++) {
+      if (String(rows[i][j] || '').trim()) { hasData = true; break; }
+    }
+  }
+  if (hasData) return false;
+  var sheet = getSheet_(SHEET_NAMES.SLOTS);
+  sheet.getRange(2, 1, DEFAULT_SLOTS.length, DEFAULT_SLOTS[0].length).setValues(DEFAULT_SLOTS.map(function (r) { return r.slice(); }));
+  invalidateSheetMemo_(SHEET_NAMES.SLOTS);
+  return true;
+}
+
+/**
+ * 「人員設定」完全沒有資料列時，以部署者電郵（ADMIN_EMAIL_FALLBACK 或有效使用者）預填一位管理員及經手人；
+ * 已有任何人員則完全不動。回傳是否有寫入。
+ */
+function seedDefaultStaffIfEmpty_() {
+  var rows = readSheetFresh_(SHEET_NAMES.STAFF);
+  for (var i = 1; i < rows.length; i++) {
+    if (String(rows[i][0] || '').trim()) return false;
+  }
+  var deployer = resolveDeployerEmail_();
+  if (!deployer) return false;
+  var sheet = getSheet_(SHEET_NAMES.STAFF);
+  sheet.getRange(2, 1, 2, 3).setValues([[deployer, '管理員', 'TRUE'], [deployer, '設備室經手人', 'TRUE']]);
+  invalidateSheetMemo_(SHEET_NAMES.STAFF);
+  return true;
+}
+
 /** 寫入標題列並凍結第 1 列。 */
 function writeHeaderRow_(sheet, headers) {
   sheet.getRange(1, 1, 1, headers.length).setValues([headers.slice()]);
@@ -185,6 +221,8 @@ function migrateSystem_() {
   if (!id) throw new ApiError_(ERROR_CODES.INTERNAL_ERROR, '尚未設定 SPREADSHEET_ID，請先執行 setupSystem。');
   var result = { fromVersion: 0, toVersion: SCHEMA_VERSION, backupId: '', addedHeaders: {}, addedSettings: [], createdSheets: [] };
   result.createdSheets = ensureSheetsExist_();
+  result.seededSlots = seedDefaultSlotsIfEmpty_();
+  result.seededStaff = seedDefaultStaffIfEmpty_();
   var version = readSchemaVersion_();
   result.fromVersion = version;
 
