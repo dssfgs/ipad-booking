@@ -47,8 +47,26 @@
     return (window.APP_CONFIG || {}).AUTH_MODE === 'mock';
   }
 
+  /**
+   * 正規化 Web App URL。Apps Script 在 Workspace 帳戶下複製的 URL 可能是
+   * https://script.google.com/a/macros/<網域>/s/<ID>/exec；此形式對匿名 fetch 會先重新導向到
+   * Google 登入頁，導致沒有 CORS 標頭而失敗。統一改為 https://script.google.com/macros/s/<ID>/exec。
+   */
+  function normalizeApiUrl(url) {
+    var u = String(url || '').trim();
+    var m = u.match(/^https:\/\/script\.google\.com\/a\/macros\/[^/]+\/(s\/.+)$/);
+    if (m) {
+      u = 'https://script.google.com/macros/' + m[1];
+      if (!normalizeApiUrl.warned) {
+        normalizeApiUrl.warned = true;
+        console.warn('API_URL 含 /a/macros/<網域>/，已自動改為 ' + u + '；請同時把 js/config.js 改為此形式。');
+      }
+    }
+    return u;
+  }
+
   function apiUrl() {
-    return (window.APP_CONFIG || {}).API_URL || '';
+    return normalizeApiUrl((window.APP_CONFIG || {}).API_URL || '');
   }
 
   function timeoutMs() {

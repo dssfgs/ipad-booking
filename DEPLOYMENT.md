@@ -155,7 +155,9 @@ window.APP_CONFIG = {
 
 | 現象 | 原因 | 處理 |
 |---|---|---|
-| 瀏覽器 Console 出現 CORS 錯誤 | Web App 未設為「所有人」，或前端加了自訂 header | 檢查部署設定；`api.js` 只用 `text/plain` |
+| 瀏覽器 Console 出現 `No 'Access-Control-Allow-Origin' header` | Web App「誰可以存取」不是「所有人」（例如選了「所有 blcwc.edu.hk 使用者」或「只有我自己」）。此時 Google 會把匿名 `fetch` 重新導向到登入頁，該回應沒有 CORS 標頭。用 `curl -I <URL>` 看到 302 導向 `ServiceLogin` 即可確認 | 「部署 → 管理部署作業 → 編輯」把「誰可以存取」改為「**所有人**」並建立新版本。若下拉選單沒有「所有人」，是 Workspace 管理員在管理控制台停用了「允許使用者將 Web 應用程式分享給所有人」，須由管理員開啟（管理控制台 → 應用程式 → Google Workspace → Drive 和文件 → Apps Script → Web 應用程式），否則本架構無法運作 |
+| `API_URL` 是 `https://script.google.com/a/macros/blcwc.edu.hk/s/…/exec` | 以 Workspace 帳戶複製 URL 時 Google 會加上網域前綴，此形式對匿名請求會先要求登入 | 改用 `https://script.google.com/macros/s/<ID>/exec`（前端 `api.js` 亦會自動去掉 `/a/macros/<網域>/` 前綴，但仍建議直接修正） |
+| Console 出現 `Cross-Origin-Opener-Policy policy would block the window.postMessage call` | Google Identity Services 的已知警告，與 GitHub Pages 無關 | 可忽略，不影響登入 |
 | health 正常但登入後所有請求 `INVALID_AUDIENCE` | `OAUTH_CLIENT_ID` 與 `GOOGLE_CLIENT_ID` 不同 | 兩邊填同一個值 |
 | 校內帳戶被拒 `FORBIDDEN_DOMAIN` | 帳戶不屬於 blcwc.edu.hk（例如別名或個人帳戶） | 以正式 Workspace 帳戶登入 |
 | 沒有收到電郵 | MailApp 每日配額用盡或收件人在人員設定未啟用 | 查看 Apps Script「執行紀錄」及 `操作紀錄` 備註欄 |
