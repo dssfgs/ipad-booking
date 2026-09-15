@@ -1,0 +1,531 @@
+<!DOCTYPE html>
+<html lang="zh-Hant-HK">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="color-scheme" content="light">
+  <meta name="theme-color" content="#0B2A4A">
+  <meta name="robots" content="noindex, nofollow">
+  <title>iPad 預約及借還系統｜香港正覺蓮社佛教梁植偉中學</title>
+  <link rel="icon" type="image/svg+xml" href="assets/favicon.svg">
+  <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">跳至主要內容</a>
+
+  <header class="site-header" id="site-header">
+    <div class="site-header__inner">
+      <a class="brand" href="#week" aria-label="iPad 預約及借還系統首頁">
+        <svg class="brand__logo" viewBox="0 0 48 48" width="40" height="40" fill="none" aria-hidden="true" focusable="false">
+          <rect x="10" y="4" width="28" height="40" rx="5" stroke="currentColor" stroke-width="2.4"/>
+          <path d="M24 33c-4.5 0-8-3-8-7 0 0 3.2 1.2 8 1.2s8-1.2 8-1.2c0 4-3.5 7-8 7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M24 26c-3.2-2.4-5-5.2-5-8.4C19 14 21 11.5 24 10c3 1.5 5 4 5 7.6 0 3.2-1.8 6-5 8.4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M18 24c-2.6-1.2-4.2-3.4-4.2-6.2 0-2 .9-3.8 2.4-5.2 1.6 1 2.8 2.6 3.3 4.6M30 24c2.6-1.2 4.2-3.4 4.2-6.2 0-2-.9-3.8-2.4-5.2-1.6 1-2.8 2.6-3.3 4.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="24" cy="39.5" r="1.4" fill="currentColor"/>
+        </svg>
+        <span class="brand__text">
+          <span class="brand__title" id="brand-title">iPad 預約及借還系統</span>
+          <span class="brand__school" id="brand-school">香港正覺蓮社佛教梁植偉中學</span>
+        </span>
+      </a>
+      <div class="user-box" id="user-box" hidden>
+        <span class="user-box__email" id="user-email" title=""></span>
+        <span class="user-box__roles" id="user-roles"></span>
+        <button type="button" class="btn btn--ghost btn--sm" id="btn-signout">登出</button>
+      </div>
+    </div>
+    <nav class="site-nav" id="site-nav" aria-label="主導覽" hidden>
+      <ul class="site-nav__list">
+        <li><a class="site-nav__link" href="#week" data-route="week">共用時間表</a></li>
+        <li><a class="site-nav__link" href="#mine" data-route="mine">我的申請</a></li>
+        <li data-role="admin" hidden><a class="site-nav__link" href="#approve" data-route="approve">審批中心</a></li>
+        <li data-role="handler" hidden><a class="site-nav__link" href="#handover" data-route="handover">領取／歸還</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <main id="main" class="site-main" tabindex="-1">
+
+    <!-- 登入畫面 -->
+    <section class="screen screen--login" id="view-login" aria-labelledby="login-title" hidden>
+      <div class="login-card">
+        <svg class="login-card__logo" viewBox="0 0 48 48" width="64" height="64" fill="none" aria-hidden="true" focusable="false">
+          <rect x="10" y="4" width="28" height="40" rx="5" stroke="currentColor" stroke-width="2.4"/>
+          <path d="M24 33c-4.5 0-8-3-8-7 0 0 3.2 1.2 8 1.2s8-1.2 8-1.2c0 4-3.5 7-8 7Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M24 26c-3.2-2.4-5-5.2-5-8.4C19 14 21 11.5 24 10c3 1.5 5 4 5 7.6 0 3.2-1.8 6-5 8.4Z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/>
+          <path d="M18 24c-2.6-1.2-4.2-3.4-4.2-6.2 0-2 .9-3.8 2.4-5.2 1.6 1 2.8 2.6 3.3 4.6M30 24c2.6-1.2 4.2-3.4 4.2-6.2 0-2-.9-3.8-2.4-5.2-1.6 1-2.8 2.6-3.3 4.6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <circle cx="24" cy="39.5" r="1.4" fill="currentColor"/>
+        </svg>
+        <h1 class="login-card__title" id="login-title">iPad 預約及借還系統</h1>
+        <p class="login-card__school" id="login-school">香港正覺蓮社佛教梁植偉中學</p>
+        <p class="login-card__hint">請使用學校 Google 帳戶（<span id="login-domain">blcwc.edu.hk</span>）登入。</p>
+        <div class="login-card__gsi">
+          <div id="g_id_signin"></div>
+        </div>
+        <div class="mock-signin" id="mock-signin" hidden>
+          <p class="mock-signin__label">開發模式：選擇測試身分</p>
+          <div class="mock-signin__buttons">
+            <button type="button" class="btn btn--secondary" data-mock-role="teacher">以教師身分登入</button>
+            <button type="button" class="btn btn--secondary" data-mock-role="admin">以審批員身分登入</button>
+            <button type="button" class="btn btn--secondary" data-mock-role="handler">以經手人身分登入</button>
+          </div>
+        </div>
+        <p class="login-card__message" id="login-message" role="status"></p>
+        <p class="login-card__status" id="login-status" aria-live="polite"></p>
+      </div>
+    </section>
+
+    <!-- 設定未完成 -->
+    <section class="screen screen--setup" id="view-setup" aria-labelledby="setup-title" hidden>
+      <div class="notice-card">
+        <h1 class="notice-card__title" id="setup-title">系統尚未完成設定</h1>
+        <p>管理員尚未在 <code>js/config.js</code> 填入後端網址（<code>API_URL</code>）及 Google 用戶端編號（<code>GOOGLE_CLIENT_ID</code>）。完成設定後重新載入本頁即可使用。</p>
+        <ul class="notice-card__list" id="setup-missing"></ul>
+      </div>
+    </section>
+
+    <!-- 主畫面 -->
+    <section class="screen screen--app" id="view-main" hidden>
+
+      <!-- 共用時間表 -->
+      <section class="view" id="view-week" data-view="week" aria-labelledby="week-title" hidden>
+        <div class="view-head">
+          <h1 class="view-title" id="week-title" tabindex="-1">共用時間表</h1>
+          <p class="view-sub" id="week-range"></p>
+        </div>
+        <div class="week-toolbar">
+          <div class="week-toolbar__nav" role="group" aria-label="切換週次">
+            <button type="button" class="btn btn--secondary" id="btn-prev-week">上一週</button>
+            <button type="button" class="btn btn--secondary" id="btn-this-week">回到本週</button>
+            <button type="button" class="btn btn--secondary" id="btn-next-week">下一週</button>
+          </div>
+          <div class="week-toolbar__mobile">
+            <label class="field field--inline" for="day-select">
+              <span class="field__label">選擇日期</span>
+              <select id="day-select" class="input"></select>
+            </label>
+            <button type="button" class="btn btn--ghost" id="btn-toggle-layout" aria-pressed="false">切換完整週表</button>
+          </div>
+          <button type="button" class="btn btn--ghost btn--sm week-toolbar__refresh" id="btn-refresh-week">重新載入</button>
+        </div>
+        <ul class="legend" id="week-legend" aria-label="圖例">
+          <li class="legend__item"><span class="legend__swatch legend__swatch--ok"></span>充足（尚餘 ≥ 30%）</li>
+          <li class="legend__item"><span class="legend__swatch legend__swatch--low"></span>緊張</li>
+          <li class="legend__item"><span class="legend__swatch legend__swatch--full"></span>借滿</li>
+          <li class="legend__item"><span class="legend__swatch legend__swatch--mine"></span>我的預約</li>
+          <li class="legend__item"><span class="legend__swatch legend__swatch--off"></span>不可預約</li>
+          <li class="legend__item"><span class="legend__swatch legend__swatch--special"></span>特別活動／需特別批准</li>
+        </ul>
+        <div class="week-container" id="week-container" aria-busy="false"></div>
+      </section>
+
+      <!-- 我的申請 -->
+      <section class="view" id="view-mine" data-view="mine" aria-labelledby="mine-title" hidden>
+        <div class="view-head">
+          <h1 class="view-title" id="mine-title" tabindex="-1">我的申請</h1>
+          <p class="view-sub">只顯示由你提交的申請。待審批或已核准的申請可在第一個時段開始前取消。</p>
+        </div>
+        <form class="filter-bar" id="mine-filters" aria-label="借用紀錄篩選" novalidate>
+          <label class="field" for="mine-q"><span class="field__label">關鍵字</span><input class="input" type="search" id="mine-q" placeholder="編號、班別、科目、活動名稱" autocomplete="off"></label>
+          <label class="field" for="mine-from"><span class="field__label">日期由</span><input class="input" type="date" id="mine-from"></label>
+          <label class="field" for="mine-to"><span class="field__label">至</span><input class="input" type="date" id="mine-to"></label>
+          <label class="field" for="mine-type"><span class="field__label">預約類型</span>
+            <select class="input" id="mine-type"><option value="">全部</option><option value="一般課堂">一般課堂</option><option value="特別活動">特別活動</option></select></label>
+          <div class="filter-bar__actions">
+            <button type="button" class="btn btn--secondary btn--sm" id="btn-mine-clear">清除篩選</button>
+            <button type="button" class="btn btn--ghost btn--sm" id="btn-refresh-mine">重新載入</button>
+          </div>
+        </form>
+        <p class="filter-result" id="mine-result" aria-live="polite"></p>
+        <div class="list" id="mine-list" aria-busy="false"></div>
+
+        <section class="subview" id="search-section" aria-labelledby="search-title" hidden>
+          <div class="view-head">
+            <h2 class="view-title view-title--sub" id="search-title" tabindex="-1">借用紀錄搜尋（管理員／經手人）</h2>
+            <p class="view-sub">搜尋全校申請紀錄，可按編號、姓名、班別或活動名稱模糊比對，最多顯示 200 筆。</p>
+          </div>
+          <form class="filter-bar" id="search-form" aria-label="借用紀錄搜尋" novalidate>
+            <label class="field" for="search-q"><span class="field__label">關鍵字</span><input class="input" type="search" id="search-q" placeholder="編號、姓名、班別、活動名稱" autocomplete="off"></label>
+            <label class="field" for="search-from"><span class="field__label">日期由</span><input class="input" type="date" id="search-from"></label>
+            <label class="field" for="search-to"><span class="field__label">至</span><input class="input" type="date" id="search-to"></label>
+            <label class="field" for="search-type"><span class="field__label">預約類型</span>
+              <select class="input" id="search-type"><option value="">全部</option><option value="一般課堂">一般課堂</option><option value="特別活動">特別活動</option></select></label>
+            <label class="field" for="search-status"><span class="field__label">狀態</span>
+              <select class="input" id="search-status">
+                <option value="">全部</option>
+                <option>待審批</option><option>已核准</option><option>已拒絕</option><option>已取消</option><option>已領取</option>
+                <option>未完全歸還</option><option>已歸還</option><option>逾時未領取</option><option>逾時未歸還</option><option>已過期</option>
+              </select></label>
+            <div class="filter-bar__actions">
+              <button type="submit" class="btn btn--primary btn--sm" id="btn-search">搜尋</button>
+              <button type="button" class="btn btn--secondary btn--sm" id="btn-search-clear">清除</button>
+            </div>
+          </form>
+          <p class="filter-result" id="search-result" aria-live="polite"></p>
+          <div class="list" id="search-list" aria-busy="false"></div>
+        </section>
+      </section>
+
+      <!-- 審批中心 -->
+      <section class="view" id="view-approve" data-view="approve" aria-labelledby="approve-title" hidden>
+        <div class="view-head">
+          <h1 class="view-title" id="approve-title" tabindex="-1">審批中心</h1>
+          <p class="view-sub">待審批的申請依日期由近至遠排列。核准時系統會重新核對庫存。</p>
+        </div>
+        <div class="view-actions">
+          <span class="count-pill" id="approve-count" hidden></span>
+          <button type="button" class="btn btn--ghost btn--sm" id="btn-refresh-approve">重新載入</button>
+        </div>
+        <div class="list" id="approve-list" aria-busy="false"></div>
+      </section>
+
+      <!-- 領取／歸還 -->
+      <section class="view" id="view-handover" data-view="handover" aria-labelledby="handover-title" hidden>
+        <div class="view-head">
+          <h1 class="view-title" id="handover-title" tabindex="-1">領取／歸還</h1>
+          <p class="view-sub">顯示所選日期已核准的申請，以及所有仍有未歸還設備的申請。</p>
+        </div>
+        <div class="view-actions view-actions--handover">
+          <label class="field field--inline" for="handover-date">
+            <span class="field__label">日期</span>
+            <input type="date" id="handover-date" class="input">
+          </label>
+          <button type="button" class="btn btn--secondary btn--sm" id="btn-handover-today">今天</button>
+          <button type="button" class="btn btn--ghost btn--sm" id="btn-refresh-handover">重新載入</button>
+        </div>
+        <div class="list" id="handover-list" aria-busy="false"></div>
+      </section>
+
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <span id="footer-school">香港正覺蓮社佛教梁植偉中學</span>
+    <span class="site-footer__sep" aria-hidden="true">·</span>
+    <span id="footer-year"></span>
+  </footer>
+
+  <!-- Toast -->
+  <div class="toast-region" id="toast-region" aria-live="polite" aria-atomic="false"></div>
+
+  <!-- 申請表 -->
+  <dialog class="dialog dialog--wide" id="dlg-apply" aria-labelledby="apply-title">
+    <form class="dialog__form" id="form-apply" method="dialog" novalidate>
+      <header class="dialog__head">
+        <h2 class="dialog__title" id="apply-title">提交預約申請</h2>
+        <button type="button" class="dialog__close" data-close aria-label="關閉">
+          <svg viewBox="0 0 20 20" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <div class="dialog__body">
+        <fieldset class="type-toggle" id="apply-type">
+          <legend class="field__label">預約類型</legend>
+          <div class="type-toggle__options">
+            <label class="type-toggle__opt" for="type-regular"><input type="radio" name="bookingType" id="type-regular" value="一般課堂" checked><span>一般課堂</span></label>
+            <label class="type-toggle__opt" for="type-special"><input type="radio" name="bookingType" id="type-special" value="特別活動"><span>特別活動</span></label>
+          </div>
+          <p class="field__hint" id="apply-type-hint"></p>
+        </fieldset>
+
+        <!-- 一般課堂 -->
+        <div id="apply-regular-fields">
+          <div class="form-grid">
+            <div class="field field--full">
+              <span class="field__label">日期</span>
+              <p class="field__static" id="apply-date-display"></p>
+              <input type="hidden" id="apply-date" name="date">
+            </div>
+
+            <fieldset class="field field--full slot-picker" id="apply-slot-fieldset">
+              <legend class="field__label">時段（可選連續多節）<span class="req" aria-hidden="true">＊</span></legend>
+              <div class="slot-picker__list" id="apply-slot-list"></div>
+              <p class="field__error" id="err-slotIds" role="alert"></p>
+              <div class="stock-summary" id="apply-stock-summary" aria-live="polite"></div>
+            </fieldset>
+
+            <div class="field">
+              <label class="field__label" for="apply-teacherName">教師姓名<span class="req" aria-hidden="true">＊</span></label>
+              <input class="input" type="text" id="apply-teacherName" name="teacherName" maxlength="50" autocomplete="name" required>
+              <p class="field__error" id="err-teacherName" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="apply-className">班別<span class="req" aria-hidden="true">＊</span></label>
+              <input class="input" type="text" id="apply-className" name="className" maxlength="20" list="class-options" autocomplete="off" required>
+              <datalist id="class-options"></datalist>
+              <p class="field__error" id="err-className" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="apply-students">學生人數<span class="req" aria-hidden="true">＊</span></label>
+              <input class="input" type="number" id="apply-students" name="students" min="1" max="60" step="1" inputmode="numeric" required>
+              <p class="field__error" id="err-students" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="apply-subject">科目<span class="req" aria-hidden="true">＊</span></label>
+              <input class="input" type="text" id="apply-subject" name="subject" maxlength="50" list="subject-options" autocomplete="off" required>
+              <datalist id="subject-options"></datalist>
+              <p class="field__error" id="err-subject" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="apply-ipad">iPad 數量<span class="req" aria-hidden="true">＊</span></label>
+              <input class="input" type="number" id="apply-ipad" name="ipad" min="1" step="1" inputmode="numeric" required>
+              <p class="field__hint" id="hint-ipad"></p>
+              <p class="field__error" id="err-ipad" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="apply-pencil">Apple Pencil 數量</label>
+              <input class="input" type="number" id="apply-pencil" name="pencil" min="0" step="1" inputmode="numeric" value="0">
+              <p class="field__hint" id="hint-pencil"></p>
+              <p class="field__error" id="err-pencil" role="alert"></p>
+            </div>
+
+            <div class="field field--full">
+              <label class="field__label" for="apply-remark">備註</label>
+              <textarea class="input" id="apply-remark" name="remark" rows="3" maxlength="500"></textarea>
+              <p class="field__hint field__hint--right"><span id="apply-remark-count">0</span>/500</p>
+              <p class="field__error" id="err-remark" role="alert"></p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 特別活動 -->
+        <div id="apply-special-fields" hidden>
+          <div class="notice-stack" id="sp-notices" aria-live="polite">
+            <p class="notice notice--info" id="sp-notice-always">特別活動一律需要管理員審批。</p>
+            <div class="notice notice--warn" id="sp-notice-special" hidden>
+              <strong class="notice__title" id="sp-notice-special-title">此日期需要管理員特別批准</strong>
+              <ul id="sp-notice-reasons"></ul>
+            </div>
+          </div>
+          <div class="form-grid">
+            <div class="field field--full">
+              <label class="field__label" for="sp-activityName">活動名稱<span class="req" aria-hidden="true">＊</span></label>
+              <input class="input" type="text" id="sp-activityName" maxlength="100" autocomplete="off" required>
+              <p class="field__error" id="err-sp-activityName" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="sp-date">活動日期<span class="req" aria-hidden="true">＊</span></label>
+              <input class="input" type="date" id="sp-date" required>
+              <p class="field__hint" id="sp-date-hint"></p>
+              <p class="field__error" id="err-sp-date" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <span class="field__label" id="sp-time-label">活動時間<span class="req" aria-hidden="true">＊</span></span>
+              <div class="time-range" role="group" aria-labelledby="sp-time-label">
+                <label class="visually-hidden" for="sp-start">自訂開始時間</label>
+                <input class="input" type="time" id="sp-start" step="300" required aria-label="自訂開始時間">
+                <span class="time-range__sep" aria-hidden="true">至</span>
+                <label class="visually-hidden" for="sp-end">自訂結束時間</label>
+                <input class="input" type="time" id="sp-end" step="300" required aria-label="自訂結束時間">
+              </div>
+              <p class="field__hint" id="sp-time-hint"></p>
+              <p class="field__error" id="err-sp-customStart" role="alert"></p>
+              <p class="field__error" id="err-sp-customEnd" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="sp-teacherName">負責教師<span class="req" aria-hidden="true">＊</span></label>
+              <input class="input" type="text" id="sp-teacherName" maxlength="50" autocomplete="name" required>
+              <p class="field__error" id="err-sp-teacherName" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="sp-className">參與班別／組別<span class="req" aria-hidden="true">＊</span></label>
+              <input class="input" type="text" id="sp-className" maxlength="50" list="class-options" autocomplete="off" required>
+              <p class="field__error" id="err-sp-className" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="sp-students">學生人數<span class="req" aria-hidden="true">＊</span></label>
+              <input class="input" type="number" id="sp-students" min="1" max="200" step="1" inputmode="numeric" required>
+              <p class="field__error" id="err-sp-students" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="sp-ipad">iPad 數量<span class="req" aria-hidden="true">＊</span></label>
+              <input class="input" type="number" id="sp-ipad" min="1" step="1" inputmode="numeric" required>
+              <p class="field__hint" id="hint-sp-ipad"></p>
+              <p class="field__error" id="err-sp-ipad" role="alert"></p>
+            </div>
+
+            <div class="field">
+              <label class="field__label" for="sp-pencil">Apple Pencil 數量</label>
+              <input class="input" type="number" id="sp-pencil" min="0" step="1" inputmode="numeric" value="0">
+              <p class="field__hint" id="hint-sp-pencil">不可多於 iPad 數量</p>
+              <p class="field__error" id="err-sp-pencil" role="alert"></p>
+            </div>
+
+            <div class="field field--full">
+              <div class="stock-summary" id="sp-stock-summary" aria-live="polite"></div>
+            </div>
+
+            <div class="field field--full">
+              <label class="field__label" for="sp-remark">活動備註<span class="req" id="sp-remark-req" aria-hidden="true" hidden>＊</span></label>
+              <textarea class="input" id="sp-remark" rows="3" maxlength="500"></textarea>
+              <p class="field__hint field__hint--right"><span id="sp-remark-count">0</span>/500</p>
+              <p class="field__error" id="err-sp-remark" role="alert"></p>
+            </div>
+
+            <div class="field field--full after-hours" id="sp-afterhours-block" hidden>
+              <p class="notice notice--warn"><strong>活動結束時間遲於 <span id="sp-afterhours-time">17:15</span></strong>，設備室當日不會回收設備，請確認以下事項並填寫活動備註。</p>
+              <label class="check-option" for="sp-afterHoursConfirm">
+                <input type="checkbox" id="sp-afterHoursConfirm">
+                <span>本人明白須自行保管 iPad 及 Apple Pencil，並於下一個上課天交到圖書館給 Molly。</span>
+              </label>
+              <p class="field__error" id="err-sp-afterHoursConfirm" role="alert"></p>
+            </div>
+          </div>
+        </div>
+        <p class="form-error" id="apply-form-error" role="alert"></p>
+      </div>
+      <footer class="dialog__foot">
+        <button type="button" class="btn btn--secondary" data-close>取消</button>
+        <button type="submit" class="btn btn--primary" id="apply-submit">提交申請</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- 通用確認 -->
+  <dialog class="dialog dialog--narrow" id="dlg-confirm" aria-labelledby="confirm-title" aria-describedby="confirm-body">
+    <form class="dialog__form" method="dialog">
+      <header class="dialog__head">
+        <h2 class="dialog__title" id="confirm-title">確認</h2>
+        <button type="button" class="dialog__close" data-close aria-label="關閉">
+          <svg viewBox="0 0 20 20" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <div class="dialog__body">
+        <p id="confirm-body"></p>
+        <ul class="confirm-list" id="confirm-list" hidden></ul>
+        <div class="field" id="confirm-reason-field" hidden>
+          <label class="field__label" for="confirm-reason">原因（選填）</label>
+          <input class="input" type="text" id="confirm-reason" maxlength="200">
+        </div>
+      </div>
+      <footer class="dialog__foot">
+        <button type="button" class="btn btn--secondary" data-close id="confirm-cancel">返回</button>
+        <button type="button" class="btn btn--danger" id="confirm-ok">確定</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- 拒絕原因 -->
+  <dialog class="dialog dialog--narrow" id="dlg-reject" aria-labelledby="reject-title">
+    <form class="dialog__form" id="form-reject" method="dialog" novalidate>
+      <header class="dialog__head">
+        <h2 class="dialog__title" id="reject-title">拒絕申請</h2>
+        <button type="button" class="dialog__close" data-close aria-label="關閉">
+          <svg viewBox="0 0 20 20" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <div class="dialog__body">
+        <p class="dialog__summary" id="reject-summary"></p>
+        <div class="field">
+          <label class="field__label" for="reject-reason">拒絕原因<span class="req" aria-hidden="true">＊</span></label>
+          <textarea class="input" id="reject-reason" rows="3" maxlength="200" required></textarea>
+          <p class="field__hint field__hint--right"><span id="reject-reason-count">0</span>/200</p>
+          <p class="field__error" id="err-reject-reason" role="alert"></p>
+        </div>
+      </div>
+      <footer class="dialog__foot">
+        <button type="button" class="btn btn--secondary" data-close>返回</button>
+        <button type="submit" class="btn btn--danger" id="reject-submit">確認拒絕</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- 登記領取 -->
+  <dialog class="dialog dialog--narrow" id="dlg-pickup" aria-labelledby="pickup-title">
+    <form class="dialog__form" id="form-pickup" method="dialog" novalidate>
+      <header class="dialog__head">
+        <h2 class="dialog__title" id="pickup-title">登記領取</h2>
+        <button type="button" class="dialog__close" data-close aria-label="關閉">
+          <svg viewBox="0 0 20 20" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <div class="dialog__body">
+        <p class="dialog__summary" id="pickup-summary"></p>
+        <div class="form-grid">
+          <div class="field">
+            <label class="field__label" for="pickup-ipad">實領 iPad 數量<span class="req" aria-hidden="true">＊</span></label>
+            <input class="input" type="number" id="pickup-ipad" min="0" step="1" inputmode="numeric" required>
+            <p class="field__hint" id="pickup-ipad-hint"></p>
+            <p class="field__error" id="err-pickup-ipad" role="alert"></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="pickup-pencil">實領 Pencil 數量<span class="req" aria-hidden="true">＊</span></label>
+            <input class="input" type="number" id="pickup-pencil" min="0" step="1" inputmode="numeric" required>
+            <p class="field__hint" id="pickup-pencil-hint"></p>
+            <p class="field__error" id="err-pickup-pencil" role="alert"></p>
+          </div>
+          <div class="field field--full">
+            <label class="field__label" for="pickup-note">異常備註</label>
+            <textarea class="input" id="pickup-note" rows="2" maxlength="500"></textarea>
+            <p class="field__hint field__hint--right"><span id="pickup-note-count">0</span>/500</p>
+          </div>
+        </div>
+        <p class="form-error" id="pickup-form-error" role="alert"></p>
+      </div>
+      <footer class="dialog__foot">
+        <button type="button" class="btn btn--secondary" data-close>返回</button>
+        <button type="submit" class="btn btn--primary" id="pickup-submit">確認領取</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <!-- 登記歸還 -->
+  <dialog class="dialog dialog--narrow" id="dlg-return" aria-labelledby="return-title">
+    <form class="dialog__form" id="form-return" method="dialog" novalidate>
+      <header class="dialog__head">
+        <h2 class="dialog__title" id="return-title">登記歸還</h2>
+        <button type="button" class="dialog__close" data-close aria-label="關閉">
+          <svg viewBox="0 0 20 20" width="20" height="20" fill="none" aria-hidden="true"><path d="M5 5l10 10M15 5L5 15" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </button>
+      </header>
+      <div class="dialog__body">
+        <p class="dialog__summary" id="return-summary"></p>
+        <div class="form-grid">
+          <div class="field">
+            <label class="field__label" for="return-ipad">本次歸還 iPad<span class="req" aria-hidden="true">＊</span></label>
+            <input class="input" type="number" id="return-ipad" min="0" step="1" inputmode="numeric" required>
+            <p class="field__hint" id="return-ipad-hint"></p>
+            <p class="field__error" id="err-return-ipad" role="alert"></p>
+          </div>
+          <div class="field">
+            <label class="field__label" for="return-pencil">本次歸還 Pencil<span class="req" aria-hidden="true">＊</span></label>
+            <input class="input" type="number" id="return-pencil" min="0" step="1" inputmode="numeric" required>
+            <p class="field__hint" id="return-pencil-hint"></p>
+            <p class="field__error" id="err-return-pencil" role="alert"></p>
+          </div>
+          <div class="field field--full">
+            <label class="field__label" for="return-note">備註</label>
+            <textarea class="input" id="return-note" rows="2" maxlength="500"></textarea>
+            <p class="field__hint field__hint--right"><span id="return-note-count">0</span>/500</p>
+          </div>
+        </div>
+        <div class="stock-summary" id="return-after" aria-live="polite"></div>
+        <p class="form-error" id="return-form-error" role="alert"></p>
+      </div>
+      <footer class="dialog__foot">
+        <button type="button" class="btn btn--secondary" data-close>返回</button>
+        <button type="submit" class="btn btn--primary" id="return-submit">確認歸還</button>
+      </footer>
+    </form>
+  </dialog>
+
+  <script src="https://accounts.google.com/gsi/client" async defer></script>
+  <script src="js/config.js"></script>
+  <script src="js/api.js"></script>
+  <script src="js/auth.js"></script>
+  <script src="js/calendar.js"></script>
+  <script src="js/forms.js"></script>
+  <script src="js/admin.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>
