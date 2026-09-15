@@ -10,7 +10,7 @@
 4. 執行 `setupSystem()`（初始化或 migration）
 5. 設定 GitHub Pages 前端並填入 `js/config.js`
 
-所有步驟均由學校的 Google Workspace 管理帳戶（系統擁有者，例如 grf@blcwc.edu.hk）操作。
+所有步驟均由學校的 Google Workspace 管理帳戶（系統擁有者帳戶）操作。
 
 ---
 
