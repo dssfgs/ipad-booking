@@ -209,9 +209,14 @@ function doPost(e) {
   return handleRequest_('POST', e);
 }
 
-/** 於編輯器執行：初始化或升級系統（可重複執行）。 */
+/** 於編輯器執行：對 SPREADSHEET_ID 所指的現有試算表做初始化或升級（可重複執行；不會建立新試算表）。 */
 function setupSystem() {
   return setupSystem_();
+}
+
+/** 於編輯器執行：明確建立全新空白試算表並初始化（只在 SPREADSHEET_ID 未設定時允許）。 */
+function createNewSpreadsheetAndSetup() {
+  return createNewSpreadsheetAndSetup_();
 }
 
 /** 時間觸發器每 15 分鐘執行：自動過期／逾時／待審提醒。 */

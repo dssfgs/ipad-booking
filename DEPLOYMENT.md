@@ -89,9 +89,14 @@
    - 在 `操作紀錄` 寫入 `執行 migration`。
 3. 到「執行紀錄」確認沒有錯誤，並打開試算表核對新欄位。
 
-### 4.2 全新試算表
-1. 不填 `SPREADSHEET_ID`，執行 `setupSystem`。
-2. 完成後 `SPREADSHEET_ID` 會自動寫入；打開該試算表，在 `人員設定` 加入管理員及設備室經手人電郵。
+### 4.2 全新試算表（只在沒有現有試算表時使用）
+1. `setupSystem` **不會**自行建立試算表；若 `SPREADSHEET_ID` 未設定，它會停止並提示先填入 ID，以免誤建。
+2. 確定要從零開始時，不填 `SPREADSHEET_ID`，改執行 `createNewSpreadsheetAndSetup`。完成後 `SPREADSHEET_ID` 會自動寫入。
+3. 新試算表的 `人員設定` 會以 `ADMIN_EMAIL_FALLBACK`（或部署者帳戶）預填一位管理員及經手人；請再補上其他人員電郵。
+4. 若 `SPREADSHEET_ID` 已有值，`createNewSpreadsheetAndSetup` 會拒絕執行，避免覆蓋現有系統。
+
+### 4.2.1 首次執行的授權
+首次執行任何函式時 Google 會要求授權。若看到「Specified permissions are not sufficient」，代表 `appsscript.json` 未以本 repository 的版本取代（缺少 `userinfo.email` 等 scope）；請貼上最新 `appsscript.json` 後，於「部署 → 測試部署」或重新執行函式時重新授權。
 
 ### 4.3 驗證後端
 - 瀏覽器開啟 `<Web App URL>?action=health`，應看到 `{"ok":true,"data":{"status":"ok","schemaVersion":3,...}}`。

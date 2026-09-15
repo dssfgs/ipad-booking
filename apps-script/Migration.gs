@@ -5,25 +5,45 @@ var SHEET_ORDER_ = [
   SHEET_NAMES.SETTINGS, SHEET_NAMES.STAFF, SHEET_NAMES.BLOCKS, SHEET_NAMES.LOGS
 ];
 
-/** 初始化或升級（可重複執行）。回傳 {spreadsheetId, created, migration}。 */
+/**
+ * 初始化或升級現有試算表（可重複執行）。回傳 {spreadsheetId, created:false, migration}。
+ * 只會對 Script Properties 的 SPREADSHEET_ID 所指的試算表執行 migration，
+ * 絕不會自行建立新試算表；缺少 SPREADSHEET_ID 時擲回明確錯誤。
+ * 需要建立全新試算表請改用 createNewSpreadsheetAndSetup()。
+ */
 function setupSystem_() {
   resetRequestMemo_();
-  var props = PropertiesService.getScriptProperties();
   var id = getProp_(PROP_KEYS.SPREADSHEET_ID);
-  var created = false;
   if (!id) {
-    id = createFreshSpreadsheet_();
-    props.setProperty(PROP_KEYS.SPREADSHEET_ID, id);
-    created = true;
-    resetRequestMemo_();
+    throw new Error('尚未設定 Script Property「' + PROP_KEYS.SPREADSHEET_ID + '」。' +
+      '請於「專案設定 → 指令碼屬性」填入中央試算表 ID 後再執行 setupSystem()；' +
+      '若確定要建立一個全新的空白試算表，請改執行 createNewSpreadsheetAndSetup()。');
   }
   installTriggers_();
   var migration = migrateSystem_();
   protectSheets_();
-  if (created) {
-    logAction_('system', LOG_ACTIONS.SETUP, '', null, { spreadsheetId: id, version: VERSION }, 'system', '成功', '', '建立全新試算表');
+  return { spreadsheetId: id, created: false, migration: migration };
+}
+
+/**
+ * 明確建立全新 v3 試算表並完成初始化。只在 SPREADSHEET_ID 尚未設定時允許執行，
+ * 避免覆蓋現有設定；成功後寫入 SPREADSHEET_ID。回傳 {spreadsheetId, created:true, migration}。
+ */
+function createNewSpreadsheetAndSetup_() {
+  resetRequestMemo_();
+  var existing = getProp_(PROP_KEYS.SPREADSHEET_ID);
+  if (existing) {
+    throw new Error('Script Property「' + PROP_KEYS.SPREADSHEET_ID + '」已設定為 ' + existing +
+      '，為避免覆蓋現有系統，不會建立新試算表。若確定要另建，請先手動清除該屬性。');
   }
-  return { spreadsheetId: id, created: created, migration: migration };
+  var id = createFreshSpreadsheet_();
+  PropertiesService.getScriptProperties().setProperty(PROP_KEYS.SPREADSHEET_ID, id);
+  resetRequestMemo_();
+  installTriggers_();
+  var migration = migrateSystem_();
+  protectSheets_();
+  logAction_('system', LOG_ACTIONS.SETUP, '', null, { spreadsheetId: id, version: VERSION }, 'system', '成功', '', '建立全新試算表');
+  return { spreadsheetId: id, created: true, migration: migration };
 }
 
 /** 建立全新 v3 試算表（8 表、標題、預設設定、P01–P09+AFTER、人員設定只放部署者）。回傳 ID。 */
@@ -39,7 +59,7 @@ function createFreshSpreadsheet_() {
   settingsSheet.getRange(2, 1, DEFAULT_SETTINGS.length, 2).setValues(DEFAULT_SETTINGS.map(function (r) { return r.slice(); }));
   var slotsSheet = ss.getSheetByName(SHEET_NAMES.SLOTS);
   slotsSheet.getRange(2, 1, DEFAULT_SLOTS.length, DEFAULT_SLOTS[0].length).setValues(DEFAULT_SLOTS.map(function (r) { return r.slice(); }));
-  var deployer = String(Session.getEffectiveUser().getEmail() || '').trim().toLowerCase();
+  var deployer = resolveDeployerEmail_();
   if (deployer) {
     ss.getSheetByName(SHEET_NAMES.STAFF).getRange(2, 1, 2, 3).setValues([
       [deployer, '管理員', 'TRUE'],
@@ -47,6 +67,21 @@ function createFreshSpreadsheet_() {
     ]);
   }
   return ss.getId();
+}
+
+/**
+ * 解析部署者電郵作為新試算表的預設管理員：先取 Script Property ADMIN_EMAIL_FALLBACK，
+ * 其次 Session.getEffectiveUser()（需 userinfo.email scope；無權限時回傳空字串，不中斷）。
+ */
+function resolveDeployerEmail_() {
+  var fallback = getProp_(PROP_KEYS.ADMIN_EMAIL_FALLBACK).trim().toLowerCase();
+  if (fallback) return fallback;
+  try {
+    return String(Session.getEffectiveUser().getEmail() || '').trim().toLowerCase();
+  } catch (err) {
+    console.warn('無法取得部署者電郵（' + err + '），人員設定將留空，請手動填寫管理員。');
+    return '';
+  }
 }
 
 /** 寫入標題列並凍結第 1 列。 */

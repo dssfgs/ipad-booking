@@ -979,6 +979,21 @@ function testMigration() {
       for (var i = 0; i < triggers.length; i++) ScriptApp.deleteTrigger(triggers[i]);
       ScriptApp.getProjectTriggers().forEach(function (t) { if (t.getHandlerFunction() === SCHEDULER_HANDLER_NAME_) ScriptApp.deleteTrigger(t); });
     });
+    test_('setupSystem_ 缺少 SPREADSHEET_ID 時擲回錯誤且不建立新試算表；createNewSpreadsheetAndSetup_ 在已設定時拒絕', function () {
+      var emptyProps = {};
+      emptyProps[PROP_KEYS.SPREADSHEET_ID] = '';
+      PROP_OVERRIDE_ = testProps_(emptyProps);
+      SPREADSHEET_ID_OVERRIDE_ = null;
+      var threw = false;
+      try { setupSystem_(); } catch (err) { threw = String(err).indexOf(PROP_KEYS.SPREADSHEET_ID) >= 0; }
+      assertEqual_(threw, true, '應擲回含 SPREADSHEET_ID 的錯誤');
+      var setProps = {};
+      setProps[PROP_KEYS.SPREADSHEET_ID] = id;
+      PROP_OVERRIDE_ = testProps_(setProps);
+      var threw2 = false;
+      try { createNewSpreadsheetAndSetup_(); } catch (err2) { threw2 = String(err2).indexOf('不會建立新試算表') >= 0; }
+      assertEqual_(threw2, true, '已設定時不可另建');
+    });
   } finally {
     for (var k = 0; k < ids.length; k++) {
       try { DriveApp.getFileById(ids[k]).setTrashed(true); } catch (err) { console.error('無法刪除測試檔 ' + ids[k] + ': ' + err); }
