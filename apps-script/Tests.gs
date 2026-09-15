@@ -375,9 +375,9 @@ function testAuthRejections() {
       Clock_.override = new Date(v.nowSec * 1000);
     });
     test_('modPow_ 基本正確性', function () {
-      assertEqual_(String(modPow_(4n, 13n, 497n)), '445');
-      assertEqual_(String(modPow_(2n, 0n, 7n)), '1');
-      assertEqual_(String(modPow_(123456789n, 65537n, 1000000007n)), String(modPowReference_(123456789n, 65537n, 1000000007n)));
+      assertEqual_(String(modPow_(BigInt(4), BigInt(13), BigInt(497))), '445');
+      assertEqual_(String(modPow_(BigInt(2), BigInt(0), BigInt(7))), '1');
+      assertEqual_(String(modPow_(BigInt(123456789), BigInt(65537), BigInt(1000000007))), String(modPowReference_(BigInt(123456789), BigInt(65537), BigInt(1000000007))));
     });
   } finally {
     cacheRemove_(tokenKeys.concat([JWKS_CACHE_KEY_]));
@@ -389,11 +389,11 @@ function testAuthRejections() {
 
 /** 對照用的簡單平方乘法實作。 */
 function modPowReference_(base, exp, mod) {
-  var result = 1n;
+  var result = BigInt(1);
   base = base % mod;
-  while (exp > 0n) {
-    if (exp % 2n === 1n) result = (result * base) % mod;
-    exp = exp / 2n;
+  while (exp > BigInt(0)) {
+    if (exp % BigInt(2) === BigInt(1)) result = (result * base) % mod;
+    exp = exp / BigInt(2);
     base = (base * base) % mod;
   }
   return result;
