@@ -8,4 +8,5 @@ window.APP_CONFIG = {
   APP_TITLE: "iPad 預約及借還系統",
   REQUEST_TIMEOUT_MS: 20000,
   WEEK_CACHE_TTL_MS: 60000
+
 };
